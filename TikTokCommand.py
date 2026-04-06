@@ -195,6 +195,7 @@ def main():
         configModel["thread"] = args.thread
         configModel["cookie"] = args.cookie
     else:
+        print("step 1")
         yamlConfig()
 
     if configModel["link"] == []:
@@ -223,11 +224,13 @@ def main():
                 print("--------------------------------------------------------------------------------")
                 print("[  提示  ]:正在请求用户主页模式: " + mode + "\r\n")
                 if mode == 'post' or mode == 'like':
-                    datalist = tk.getUserInfo(key, mode, 35, configModel["number"][mode])
+                    datalist, dirname = tk.getUserInfo(key, mode, 35, configModel["number"][mode])
                     if datalist is not None and datalist != []:
-                        modePath = os.path.join(userPath, mode)
+                        # modePath = os.path.join(userPath, mode)
+                        modePath = os.path.join(configModel["path"], dirname)
                         if not os.path.exists(modePath):
                             os.mkdir(modePath)
+                        print("modePath", modePath)
                         tk.userDownload(awemeList=datalist, music=configModel["music"], cover=configModel["cover"],
                                         avatar=configModel["avatar"], resjson=configModel["json"],
                                         savePath=modePath, thread=configModel["thread"])

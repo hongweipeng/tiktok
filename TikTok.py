@@ -54,6 +54,7 @@ class TikTok(object):
         }
         # 用于设置重复请求某个接口的最大时间
         self.timeout = 10
+        self.isdwownload = False
 
         # rich 进度条
         # self.progress = Progress(
@@ -277,12 +278,13 @@ class TikTok(object):
     def getUserInfo(self, sec_uid, mode="post", count=35, number=0):
         print('[  提示  ]:正在请求的用户 id = %s\r\n' % sec_uid)
         if sec_uid is None:
-            return None
+            return None, sec_uid
         if number <= 0:
             numflag = False
         else:
             numflag = True
 
+        dirname = sec_uid
         max_cursor = 0
         awemeList = []
 
@@ -305,7 +307,7 @@ class TikTok(object):
                             url=f'sec_user_id={sec_uid}&count={count}&max_cursor={max_cursor}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333')
                     else:
                         print("[  错误  ]:模式选择错误, 仅支持post、like、mix, 请检查后重新运行!\r")
-                        return None
+                        return None, dirname
 
                     res = requests.get(url=url, headers=self.headers)
                     datadict = json.loads(res.text)
@@ -318,10 +320,15 @@ class TikTok(object):
                     if end - start > self.timeout:
                         # raise RuntimeError("重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
                         print("[  提示  ]:重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
-                        return awemeList
+                        return awemeList, dirname
                     # print("[  警告  ]:接口未返回数据, 正在重新请求!\r")
 
             for aweme in datadict["aweme_list"]:
+                # 处理用户名
+                if dirname == sec_uid and "author" in aweme:
+                    author = aweme["author"]
+                    if "uid" in author and "nickname" in author:
+                        dirname = "%s-%s" % (author["uid"], author["nickname"])
                 # 获取 aweme_id
                 # aweme_id = aweme["aweme_id"]
                 # 深拷贝 dict 不然list里面全是同样的数据
@@ -362,7 +369,7 @@ class TikTok(object):
             else:
                 print("\r\n[  提示  ]:[主页] 第 " + str(times) + " 次请求成功...\r\n")
 
-        return awemeList
+        return awemeList, dirname
 
     def getLiveInfoApi(self, web_rid: str):
         start = time.time()  # 开始时间
@@ -934,7 +941,7 @@ class TikTok(object):
                 try:
                     with open(os.path.join(aweme_path, "result.json"), "w", encoding='utf-8') as f:
                         f.write(json.dumps(awemeDict, ensure_ascii=False, indent=2))
-                        f.close()
+                        # f.close()
                 except Exception as e:
                     print("[  错误  ]:保存 result.json 失败... 作品名: " + file_name +"\r\n")
 
@@ -945,7 +952,7 @@ class TikTok(object):
                 video_path = os.path.join(aweme_path, file_name + ".mp4")
 
                 if os.path.exists(video_path):
-                    # print("[  提示  ]:视频已存在为您跳过...\r\n")
+                    print(f"[  提示  ]:视频已存在为您跳过 {video_path}...\r\n")
                     pass
                 else:
                     try:
@@ -1102,15 +1109,18 @@ class TikTok(object):
         self.alltask = []
         self.pool = ThreadPoolExecutor(max_workers=thread)
 
+        self.isdwownload = True
         start = time.time()  # 开始时间
 
         for aweme in awemeList:
             self.awemeDownload(awemeDict=aweme, music=music, cover=cover, avatar=avatar, resjson=resjson, savePath=savePath)
             # time.sleep(0.5)
         wait(self.alltask, return_when=ALL_COMPLETED)
+        self.alltask.clear()
 
         # 检查下载是否完成
-        while True:
+        check_loop = 0
+        while True and not self.isdwownload:
             print("[  提示  ]:正在检查下载是否完成...")
             self.isdwownload = True
             # 下载上一步失败的
@@ -1118,8 +1128,11 @@ class TikTok(object):
                 self.awemeDownload(awemeDict=aweme, music=music, cover=cover, avatar=avatar, resjson=resjson, savePath=savePath)
                 # time.sleep(0.5)
             wait(self.alltask, return_when=ALL_COMPLETED)
+            self.alltask.clear()
 
-            if self.isdwownload:
+            check_loop += 1
+            if check_loop >= 5:
+                print(f"[  警告  ]:检查下载是否完成失败已达到{check_loop}次, 请重试")
                 break
 
         end = time.time()  # 结束时间
