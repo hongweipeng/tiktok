@@ -216,39 +216,39 @@ def main():
         key_type, key = tk.getKey(url)
         if key_type == "user":
             print("[  提示  ]:正在请求用户主页下作品\r\n")
-            userPath = os.path.join(configModel["path"], "user_"+key)
-            if not os.path.exists(userPath):
-                os.mkdir(userPath)
+            # userPath = os.path.join(configModel["path"], "user_"+key)
+            # if not os.path.exists(userPath):
+            #     os.mkdir(userPath)
 
             for mode in configModel["mode"]:
                 print("--------------------------------------------------------------------------------")
                 print("[  提示  ]:正在请求用户主页模式: " + mode + "\r\n")
                 if mode == 'post' or mode == 'like':
                     datalist, dirname = tk.getUserInfo(key, mode, 35, configModel["number"][mode])
-                    if datalist is not None and datalist != []:
+                    print("[ 提示 ]: 用户目录", dirname)
+                    if datalist is not None and datalist and dirname != key:
                         # modePath = os.path.join(userPath, mode)
                         modePath = os.path.join(configModel["path"], dirname)
                         if not os.path.exists(modePath):
                             os.mkdir(modePath)
-                        print("modePath", modePath)
                         tk.userDownload(awemeList=datalist, music=configModel["music"], cover=configModel["cover"],
                                         avatar=configModel["avatar"], resjson=configModel["json"],
                                         savePath=modePath, thread=configModel["thread"])
-                elif mode == 'mix':
-                    mixIdNameDict = tk.getUserAllMixInfo(key, 35, configModel["number"]["allmix"])
-                    if mixIdNameDict is not None and mixIdNameDict != {}:
-                        for mix_id in mixIdNameDict:
-                            print(f'[  提示  ]:正在下载合集 [{mixIdNameDict[mix_id]}] 中的作品\r\n')
-                            mix_file_name = utils.replaceStr(mixIdNameDict[mix_id])
-                            datalist = tk.getMixInfo(mix_id, 35)
-                            if datalist is not None and datalist != []:
-                                modePath = os.path.join(userPath, mode)
-                                if not os.path.exists(modePath):
-                                    os.mkdir(modePath)
-                                tk.userDownload(awemeList=datalist, music=configModel["music"], cover=configModel["cover"],
-                                                avatar=configModel["avatar"], resjson=configModel["json"],
-                                                savePath=os.path.join(modePath, mix_file_name), thread=configModel["thread"])
-                                print(f'[  提示  ]:合集 [{mixIdNameDict[mix_id]}] 中的作品下载完成\r\n')
+                # elif mode == 'mix':
+                #     mixIdNameDict = tk.getUserAllMixInfo(key, 35, configModel["number"]["allmix"])
+                #     if mixIdNameDict is not None and mixIdNameDict != {}:
+                #         for mix_id in mixIdNameDict:
+                #             print(f'[  提示  ]:正在下载合集 [{mixIdNameDict[mix_id]}] 中的作品\r\n')
+                #             mix_file_name = utils.replaceStr(mixIdNameDict[mix_id])
+                #             datalist = tk.getMixInfo(mix_id, 35)
+                #             if datalist is not None and datalist != []:
+                #                 modePath = os.path.join(userPath, mode)
+                #                 if not os.path.exists(modePath):
+                #                     os.mkdir(modePath)
+                #                 tk.userDownload(awemeList=datalist, music=configModel["music"], cover=configModel["cover"],
+                #                                 avatar=configModel["avatar"], resjson=configModel["json"],
+                #                                 savePath=os.path.join(modePath, mix_file_name), thread=configModel["thread"])
+                #                 print(f'[  提示  ]:合集 [{mixIdNameDict[mix_id]}] 中的作品下载完成\r\n')
         elif key_type == "mix":
             print("[  提示  ]:正在请求单个合集下作品\r\n")
             datalist = tk.getMixInfo(key,35, configModel["number"]["mix"])
