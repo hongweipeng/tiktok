@@ -917,6 +917,8 @@ class TikTok(object):
                     for data in response.iter_content(chunk_size=chunk_size):
                         size = file.write(data)
                         bar.update(size)
+            else:
+                logger.error(f"下载视频错误, {url} status: {response.status_code} {filepath=}")
         except Exception as e:
             # 下载异常 删除原来下载的文件, 可能未下成功
             if os.path.exists(filepath):
@@ -1135,7 +1137,7 @@ class TikTok(object):
             self.alltask.clear()
 
             check_loop += 1
-            if check_loop >= 5:
+            if check_loop >= 3:
                 logger.info(f"[  警告  ]:检查下载是否完成失败已达到{check_loop}次, 请重试")
                 break
 
