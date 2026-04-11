@@ -944,7 +944,7 @@ class TikTok(object):
                         f.write(json.dumps(awemeDict, ensure_ascii=False, indent=2))
                         # f.close()
                 except Exception as e:
-                    logger.info("[  错误  ]:保存 result.json 失败... 作品名: " + file_name +"")
+                    logger.error("[  错误  ]:保存 result.json 失败... 作品名: " + file_name +"")
 
             desc = file_name[:30]
             # 下载  视频
@@ -965,7 +965,7 @@ class TikTok(object):
                             self.alltask.append(
                                 self.pool.submit(self.progressBarDownload, url, video_path, "[ 视频 ]:" + desc))
                     except Exception as e:
-                        logger.info("[  警告  ]:视频下载失败,请重试... 作品名: " + file_name +"")
+                        logger.error("[  警告  ]:视频下载失败,请重试... 作品名: " + file_name +"")
 
             # 下载 图集
             if awemeDict["awemeType"] == 1:
@@ -977,13 +977,14 @@ class TikTok(object):
                         pass
                     else:
                         try:
-                            url = image["url_list"][0]
-                            if url != "":
-                                self.isdwownload = False
-                                # task_id = self.progress.add_task("download", filename="[ 图集 ]:" + desc, start=False)
-                                # self.alltask.append(self.pool.submit(self.copy_url, task_id, url, image_path))
-                                self.alltask.append(
-                                    self.pool.submit(self.progressBarDownload, url, image_path, "[ 图集 ]:" + desc))
+                            if image["url_list"]:
+                                url = image["url_list"][0]
+                                if url != "":
+                                    self.isdwownload = False
+                                    # task_id = self.progress.add_task("download", filename="[ 图集 ]:" + desc, start=False)
+                                    # self.alltask.append(self.pool.submit(self.copy_url, task_id, url, image_path))
+                                    self.alltask.append(
+                                        self.pool.submit(self.progressBarDownload, url, image_path, "[ 图集 ]:" + desc))
                         except Exception as e:
                             logger.error("[  警告  ]:图片下载失败,请重试... 作品名: " + file_name +"")
 
@@ -1048,7 +1049,7 @@ class TikTok(object):
                             self.alltask.append(
                                 self.pool.submit(self.progressBarDownload, url, avatar_path, "[ 头像 ]:" + desc))
                     except Exception as e:
-                        logger.info("[  警告  ]:avatar下载失败,请重试... 作品名: " + file_name +"")
+                        logger.error("[  警告  ]:avatar下载失败,请重试... 作品名: " + file_name +"")
         except Exception as e:
             logger.error("[  错误  ]:下载作品时出错")
 
