@@ -21,6 +21,7 @@ import yaml
 import time
 from TikTok import TikTok
 from TikTokUtils import Utils
+from logger import logger
 
 configModel = {
     "link": [],
@@ -93,67 +94,67 @@ def yamlConfig():
         if configDict["link"] != None:
             configModel["link"] = configDict["link"]
     except Exception as e:
-        print("[  警告  ]:link未设置, 程序退出...\r\n")
+        logger.info("[  警告  ]:link未设置, 程序退出...")
     try:
         if configDict["path"] != None:
             configModel["path"] = configDict["path"]
     except Exception as e:
-        print("[  警告  ]:path未设置, 使用当前路径...\r\n")
+        logger.info("[  警告  ]:path未设置, 使用当前路径...")
     try:
         if configDict["music"] != None:
             configModel["music"] = configDict["music"]
     except Exception as e:
-        print("[  警告  ]:music未设置, 使用默认值True...\r\n")
+        logger.info("[  警告  ]:music未设置, 使用默认值True...")
     try:
         if configDict["cover"] != None:
             configModel["cover"] = configDict["cover"]
     except Exception as e:
-        print("[  警告  ]:cover未设置, 使用默认值True...\r\n")
+        logger.info("[  警告  ]:cover未设置, 使用默认值True...")
     try:
         if configDict["avatar"] != None:
             configModel["avatar"] = configDict["avatar"]
     except Exception as e:
-        print("[  警告  ]:avatar未设置, 使用默认值True...\r\n")
+        logger.info("[  警告  ]:avatar未设置, 使用默认值True...")
     try:
         if configDict["json"] != None:
             configModel["json"] = configDict["json"]
     except Exception as e:
-        print("[  警告  ]:json未设置, 使用默认值True...\r\n")
+        logger.info("[  警告  ]:json未设置, 使用默认值True...")
     try:
         if configDict["mode"] != None:
             configModel["mode"] = configDict["mode"]
     except Exception as e:
-        print("[  警告  ]:mode未设置, 使用默认值post...\r\n")
+        logger.info("[  警告  ]:mode未设置, 使用默认值post...")
     try:
         if configDict["number"]["post"] != None:
             configModel["number"]["post"] = configDict["number"]["post"]
     except Exception as e:
-        print("[  警告  ]:post number未设置, 使用默认值0...\r\n")
+        logger.info("[  警告  ]:post number未设置, 使用默认值0...")
     try:
         if configDict["number"]["like"] != None:
             configModel["number"]["like"] = configDict["number"]["like"]
     except Exception as e:
-        print("[  警告  ]:like number未设置, 使用默认值0...\r\n")
+        logger.info("[  警告  ]:like number未设置, 使用默认值0...")
     try:
         if configDict["number"]["allmix"] != None:
             configModel["number"]["allmix"] = configDict["number"]["allmix"]
     except Exception as e:
-        print("[  警告  ]:allmix number未设置, 使用默认值0...\r\n")
+        logger.info("[  警告  ]:allmix number未设置, 使用默认值0...")
     try:
         if configDict["number"]["mix"] != None:
             configModel["number"]["mix"] = configDict["number"]["mix"]
     except Exception as e:
-        print("[  警告  ]:mix number未设置, 使用默认值0...\r\n")
+        logger.info("[  警告  ]:mix number未设置, 使用默认值0...")
     try:
         if configDict["number"]["music"] != None:
             configModel["number"]["music"] = configDict["number"]["music"]
     except Exception as e:
-        print("[  警告  ]:music number未设置, 使用默认值0...\r\n")
+        logger.info("[  警告  ]:music number未设置, 使用默认值0...")
     try:
         if configDict["thread"] != None:
             configModel["thread"] = configDict["thread"]
     except Exception as e:
-        print("[  警告  ]:thread未设置, 使用默认值5...\r\n")
+        logger.info("[  警告  ]:thread未设置, 使用默认值5...")
     try:
         if configDict["cookies"] != None:
             cookiekey = configDict["cookies"].keys()
@@ -195,7 +196,7 @@ def main():
         configModel["thread"] = args.thread
         configModel["cookie"] = args.cookie
     else:
-        print("step 1")
+        logger.info("step 1")
         yamlConfig()
 
     if configModel["link"] == []:
@@ -210,22 +211,22 @@ def main():
         os.mkdir(configModel["path"])
 
     for link in configModel["link"]:
-        print("--------------------------------------------------------------------------------")
-        print("[  提示  ]:正在请求的链接: " + link + "\r\n")
+        logger.info("--------------------------------------------------------------------------------")
+        logger.info("[  提示  ]:正在请求的链接: " + link + "")
         url = tk.getShareLink(link)
         key_type, key = tk.getKey(url)
         if key_type == "user":
-            print("[  提示  ]:正在请求用户主页下作品\r\n")
+            logger.info("[  提示  ]:正在请求用户主页下作品")
             # userPath = os.path.join(configModel["path"], "user_"+key)
             # if not os.path.exists(userPath):
             #     os.mkdir(userPath)
 
             for mode in configModel["mode"]:
-                print("--------------------------------------------------------------------------------")
-                print("[  提示  ]:正在请求用户主页模式: " + mode + "\r\n")
+                logger.info("--------------------------------------------------------------------------------")
+                logger.info("[  提示  ]:正在请求用户主页模式: " + mode + "")
                 if mode == 'post' or mode == 'like':
                     datalist, dirname = tk.getUserInfo(key, mode, 35, configModel["number"][mode])
-                    print("[ 提示 ]: 用户目录", dirname)
+                    logger.info(f"[ 提示 ]: 用户目录: {dirname}")
                     if datalist is not None and datalist and dirname != key:
                         # modePath = os.path.join(userPath, mode)
                         modePath = os.path.join(configModel["path"], dirname)
@@ -238,7 +239,7 @@ def main():
                 #     mixIdNameDict = tk.getUserAllMixInfo(key, 35, configModel["number"]["allmix"])
                 #     if mixIdNameDict is not None and mixIdNameDict != {}:
                 #         for mix_id in mixIdNameDict:
-                #             print(f'[  提示  ]:正在下载合集 [{mixIdNameDict[mix_id]}] 中的作品\r\n')
+                #             logger.info(f'[  提示  ]:正在下载合集 [{mixIdNameDict[mix_id]}] 中的作品')
                 #             mix_file_name = utils.replaceStr(mixIdNameDict[mix_id])
                 #             datalist = tk.getMixInfo(mix_id, 35)
                 #             if datalist is not None and datalist != []:
@@ -248,9 +249,9 @@ def main():
                 #                 tk.userDownload(awemeList=datalist, music=configModel["music"], cover=configModel["cover"],
                 #                                 avatar=configModel["avatar"], resjson=configModel["json"],
                 #                                 savePath=os.path.join(modePath, mix_file_name), thread=configModel["thread"])
-                #                 print(f'[  提示  ]:合集 [{mixIdNameDict[mix_id]}] 中的作品下载完成\r\n')
+                #                 logger.info(f'[  提示  ]:合集 [{mixIdNameDict[mix_id]}] 中的作品下载完成')
         elif key_type == "mix":
-            print("[  提示  ]:正在请求单个合集下作品\r\n")
+            logger.info("[  提示  ]:正在请求单个合集下作品")
             datalist = tk.getMixInfo(key,35, configModel["number"]["mix"])
             if datalist is not None and datalist != []:
                 mixPath = os.path.join(configModel["path"], "mix_" + key)
@@ -260,7 +261,7 @@ def main():
                                 avatar=configModel["avatar"], resjson=configModel["json"],
                                 savePath=mixPath, thread=configModel["thread"])
         elif key_type == "music":
-            print("[  提示  ]:正在请求音乐(原声)下作品\r\n")
+            logger.info("[  提示  ]:正在请求音乐(原声)下作品")
             datalist = tk.getMusicInfo(key,35, configModel["number"]["music"])
             if datalist is not None and datalist != []:
                 musicPath = os.path.join(configModel["path"], "music_" + key)
@@ -270,7 +271,7 @@ def main():
                                 avatar=configModel["avatar"], resjson=configModel["json"],
                                 savePath=musicPath, thread=configModel["thread"])
         elif key_type == "aweme":
-            print("[  提示  ]:正在请求单个作品\r\n")
+            logger.info("[  提示  ]:正在请求单个作品")
             datanew, dataraw = tk.getAwemeInfo(key)
             if datanew is not None and datanew != {}:
                 datalist = []
@@ -282,7 +283,7 @@ def main():
                                 avatar=configModel["avatar"], resjson=configModel["json"],
                                 savePath=awemePath, thread=configModel["thread"])
         elif key_type == "live":
-            print("[  提示  ]:正在进行直播解析\r\n")
+            logger.info("[  提示  ]:正在进行直播解析")
             live_json = tk.getLiveInfo(key)
             if  configModel["json"]:
                 livePath = os.path.join(configModel["path"], "live")
@@ -290,13 +291,13 @@ def main():
                     os.mkdir(livePath)
                 live_file_name = utils.replaceStr(key + live_json["nickname"])
                 # 保存获取到json
-                print("[  提示  ]:正在保存获取到的信息到result.json\r\n")
+                logger.info("[  提示  ]:正在保存获取到的信息到result.json")
                 with open(os.path.join(livePath,  live_file_name + ".json"), "w", encoding='utf-8') as f:
                     f.write(json.dumps(live_json, ensure_ascii=False, indent=2))
                     f.close()
 
     end = time.time()  # 结束时间
-    print('\n' + '[下载完成]:总耗时: %d分钟%d秒\n' % (int((end - start) / 60), ((end - start) % 60)))  # 输出下载用时时间
+    logger.info('\n' + '[下载完成]:总耗时: %d分钟%d秒\n' % (int((end - start) / 60), ((end - start) % 60)))  # 输出下载用时时间
 
 if __name__ == "__main__":
     main()
