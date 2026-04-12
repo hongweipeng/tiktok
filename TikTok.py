@@ -37,10 +37,31 @@ from logger import logger
 #     TransferSpeedColumn
 # )
 
+# emoji 正则（覆盖常见表情区间）
+EMOJI_PATTERN = re.compile(
+    "["
+    "\U0001F600-\U0001F64F"  # emoticons
+    "\U0001F300-\U0001F5FF"  # symbols & pictographs
+    "\U0001F680-\U0001F6FF"  # transport & map
+    "\U0001F1E0-\U0001F1FF"  # flags
+    "\U00002700-\U000027BF"  # dingbats
+    "]+",
+    flags=re.UNICODE
+)
+
 from TikTokUtils import Utils
 from TikTokUrls import Urls
 from TikTokResult import Result
 
+
+def clean_text(text: str) -> str:
+    # 去掉 emoji
+    text = EMOJI_PATTERN.sub("", text)
+
+    # 去掉换行符、制表符
+    text = re.sub(r"[\n\r\t]", "", text)
+
+    return text
 
 class TikTok(object):
 
@@ -330,6 +351,7 @@ class TikTok(object):
                     author = aweme["author"]
                     if "uid" in author and "nickname" in author:
                         dirname = "%s-%s" % (author["uid"], author["nickname"])
+                        dirname = clean_text(dirname)
                 # 获取 aweme_id
                 # aweme_id = aweme["aweme_id"]
                 # 深拷贝 dict 不然list里面全是同样的数据
@@ -934,6 +956,7 @@ class TikTok(object):
         try:
             # 使用作品 创建时间+描述 当文件夹
             file_name = awemeDict["create_time"] + "_" +  self.utils.replaceStr(awemeDict["desc"])
+            file_name = clean_text(file_name)
             aweme_path = os.path.join(savePath, file_name)
             if not os.path.exists(aweme_path):
                 os.mkdir(aweme_path)
