@@ -37,31 +37,16 @@ from logger import logger
 #     TransferSpeedColumn
 # )
 
-# emoji 正则（覆盖常见表情区间）
-EMOJI_PATTERN = re.compile(
-    "["
-    "\U0001F600-\U0001F64F"  # emoticons
-    "\U0001F300-\U0001F5FF"  # symbols & pictographs
-    "\U0001F680-\U0001F6FF"  # transport & map
-    "\U0001F1E0-\U0001F1FF"  # flags
-    "\U00002700-\U000027BF"  # dingbats
-    "]+",
-    flags=re.UNICODE
-)
-
 from TikTokUtils import Utils
 from TikTokUrls import Urls
 from TikTokResult import Result
 
 
 def clean_text(text: str) -> str:
-    # 去掉 emoji
-    text = EMOJI_PATTERN.sub("", text)
-
-    # 去掉换行符、制表符
-    text = re.sub(r"[\n\r\t]", "", text)
-
-    return text
+    """
+    保留：数字、大小写字母、中文、下划线、连字符
+    """
+    return re.sub(r'[^0-9a-zA-Z_\-\u4e00-\u9fff]', '', text)
 
 class TikTok(object):
 
