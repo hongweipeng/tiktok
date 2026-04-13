@@ -44,9 +44,9 @@ from TikTokResult import Result
 
 def clean_text(text: str) -> str:
     """
-    保留：数字、大小写字母、中文、下划线、连字符
+    保留：数字、大小写字母、中文、下划线、连字符、空格
     """
-    return re.sub(r'[^0-9a-zA-Z_\-\u4e00-\u9fff]', '', text)
+    return re.sub(r'[^0-9a-zA-Z_\- \u4e00-\u9fff]', '', text)
 
 class TikTok(object):
 
