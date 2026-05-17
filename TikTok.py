@@ -62,6 +62,8 @@ class TikTok(object):
         # 用于设置重复请求某个接口的最大时间
         self.timeout = 10
         self.isdwownload = False
+        self.alltask = []
+        self.failtask = []
 
         # rich 进度条
         # self.progress = Progress(
@@ -977,6 +979,7 @@ class TikTok(object):
                             self.alltask.append(
                                 self.pool.submit(self.progressBarDownload, url, video_path, "[ 视频 ]:" + desc))
                     except Exception as e:
+                        self.failtask.append(f"视频下载失败, 作品名: {file_name} url: {url}")
                         logger.error("[  警告  ]:视频下载失败,请重试... 作品名: " + file_name +"")
 
             # 下载 图集
@@ -998,6 +1001,7 @@ class TikTok(object):
                                     self.alltask.append(
                                         self.pool.submit(self.progressBarDownload, url, image_path, "[ 图集 ]:" + desc))
                         except Exception as e:
+                            self.failtask.append(f"图片下载失败, 作品名: {file_name} url: {url}")
                             logger.error("[  警告  ]:图片下载失败,请重试... 作品名: " + file_name +"")
 
             # 下载  音乐
@@ -1021,6 +1025,7 @@ class TikTok(object):
                                 self.alltask.append(
                                     self.pool.submit(self.progressBarDownload, url, music_path, "[ 原声 ]:" + desc))
                     except Exception as e:
+                        self.failtask.append(f"音乐(原声)下载失败, 作品名: {file_name} url: {url}")
                         logger.error(f"[  警告  ]:音乐(原声)下载失败,请重试... 作品名: {file_name} {e}")
 
             # 下载  cover
@@ -1041,6 +1046,7 @@ class TikTok(object):
                             self.alltask.append(
                                 self.pool.submit(self.progressBarDownload, url, cover_path, "[ 封面 ]:" + desc))
                     except Exception as e:
+                        self.failtask.append(f"cover下载失败, 作品名: {file_name} url: {url}")
                         logger.error("[  警告  ]:cover下载失败,请重试... 作品名: " + file_name +"")
 
             # 下载  avatar
@@ -1061,6 +1067,7 @@ class TikTok(object):
                             self.alltask.append(
                                 self.pool.submit(self.progressBarDownload, url, avatar_path, "[ 头像 ]:" + desc))
                     except Exception as e:
+                        self.failtask.append(f"avatar下载失败, 作品名: {file_name} url: {url}")
                         logger.error("[  警告  ]:avatar下载失败,请重试... 作品名: " + file_name +"")
         except Exception as e:
             logger.error("[  错误  ]:下载作品时出错")
@@ -1133,6 +1140,7 @@ class TikTok(object):
             # time.sleep(0.5)
         wait(self.alltask, return_when=ALL_COMPLETED)
         self.alltask.clear()
+        self.failtask.clear()
 
         # 检查下载是否完成
         check_loop = 0
@@ -1145,6 +1153,7 @@ class TikTok(object):
                 # time.sleep(0.5)
             wait(self.alltask, return_when=ALL_COMPLETED)
             self.alltask.clear()
+            self.failtask.clear()
 
             check_loop += 1
             if check_loop >= 3:
@@ -1152,6 +1161,12 @@ class TikTok(object):
                 break
 
         end = time.time()  # 结束时间
+        if self.failtask:
+            logger.info(f"[  警告  ]:下载完成, 共{len(awemeList)}条作品, 其中{len(self.failtask)}条作品下载失败")
+            logger.info(f"[  警告  ]:失败作品列表: {self.failtask}")
+        else:
+            logger.info(f"[  提示  ]:下载完成, 共{len(awemeList)}条作品, 所有作品下载成功")
+
         logger.info('' + '[下载完成]:耗时: %d分钟%d秒' % (int((end - start) / 60), ((end - start) % 60)))  # 输出下载用时时间
 
 if __name__ == "__main__":
