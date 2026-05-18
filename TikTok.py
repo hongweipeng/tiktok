@@ -1133,14 +1133,13 @@ class TikTok(object):
         self.pool = ThreadPoolExecutor(max_workers=thread)
 
         self.isdwownload = True
+        self.failtask.clear()
         start = time.time()  # 开始时间
-
         for aweme in awemeList:
             self.awemeDownload(awemeDict=aweme, music=music, cover=cover, avatar=avatar, resjson=resjson, savePath=savePath)
             # time.sleep(0.5)
         wait(self.alltask, return_when=ALL_COMPLETED)
         self.alltask.clear()
-        self.failtask.clear()
 
         # 检查下载是否完成
         check_loop = 0
@@ -1153,12 +1152,12 @@ class TikTok(object):
                 # time.sleep(0.5)
             wait(self.alltask, return_when=ALL_COMPLETED)
             self.alltask.clear()
-            self.failtask.clear()
 
             check_loop += 1
             if check_loop >= 3:
                 logger.info(f"[  警告  ]:检查下载是否完成失败已达到{check_loop}次, 请重试")
                 break
+            self.failtask.clear()
 
         end = time.time()  # 结束时间
         if self.failtask:
