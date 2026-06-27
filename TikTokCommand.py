@@ -227,6 +227,21 @@ def main():
                 if mode == 'post' or mode == 'like':
                     datalist, dirname = tk.getUserInfo(key, mode, 35, configModel["number"][mode])
                     logger.info(f"[ 提示 ]: 用户目录: {dirname}")
+                    # dirname 格式 "%s-%s" % (author["uid"], author["nickname"])
+                    # 检查目录如果有 author["uid"]- 开头的目录，则重命名为 dirname
+                    dirname_prefix = dirname.split("-")[0] + "-"
+                    if os.path.exists(configModel["path"]):
+                        for old_name in os.listdir(configModel["path"]):
+                            old_path = os.path.join(configModel["path"], old_name)
+                            if os.path.isdir(old_path) and old_name.startswith(dirname_prefix) and old_name != dirname:
+                                new_path = os.path.join(configModel["path"], dirname)
+                                os.rename(old_path, new_path)
+                                logger.info(f"[  提示  ]: 目录重命名: {old_name} -> {dirname}")
+                                # 在新目录下生成就名称.txt 文件
+                                with open(os.path.join(new_path, "%s.txt" % dirname.split("-")[-1]), "w") as f:
+                                    pass
+                                break
+
                     if datalist is not None and datalist and dirname != key:
                         # modePath = os.path.join(userPath, mode)
                         modePath = os.path.join(configModel["path"], dirname)
